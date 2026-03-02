@@ -1,0 +1,35 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id               Int      @id @default(autoincrement())
+  course           String   // B.Tech, B.Pharm, BBA, BCA, MCA
+  semester         Int      // 1-8
+  year             String   // 2017-18, etc.
+  folder_name      String   // Subject Name
+  file_name        String   // Display Name for UI
+  telegram_file_id String   // Used to generate download URL
+  subject_tag      String   @default("") // Specific custom tag for files
+  uploadedAt       DateTime @default(now())
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String
+  course    String   // Ties the subject to a specific course
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,347 @@
+.dashboard {
+    padding: 16px 0;
+}
+
+@media (min-width: 768px) {
+    .dashboard {
+        padding: 20px 0;
+    }
+}
+
+.header {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+    .header {
+        padding: 24px 32px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+}
+
+.tabsContainer {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+    .tabsContainer {
+        gap: 16px;
+    }
+}
+
+.tabBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .tabBtn {
+        padding: 8px 16px;
+    }
+}
+
+.tabBtn:hover {
+    background: rgba(37, 99, 235, 0.05);
+    color: var(--text-main);
+}
+
+.tabActive {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary-accent);
+    font-weight: 600;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 16px;
+}
+
+.settingsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 16px;
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: 450px 1fr;
+        gap: 32px;
+    }
+
+    .settingsGrid {
+        grid-template-columns: 400px 1fr;
+        gap: 32px;
+    }
+}
+
+.panel {
+    padding: 20px 16px;
+}
+
+@media (min-width: 768px) {
+    .panel {
+        padding: 24px;
+    }
+}
+
+.panel h3 {
+    margin-bottom: 20px;
+    font-size: 1.15rem;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+    .panel h3 {
+        font-size: 1.25rem;
+        margin-bottom: 24px;
+    }
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 600px) {
+    .row {
+        flex-direction: row;
+    }
+}
+
+.group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.group label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.fileBox {
+    padding: 16px;
+    border: 2px dashed var(--surface-border);
+    border-radius: 8px;
+    text-align: center;
+    background: rgba(248, 250, 252, 0.5);
+    display: flex;
+    justify-content: center;
+}
+
+.fileListWrapper h4 {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding-top: 8px;
+}
+
+.fileList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.fileListItem {
+    display: flex;
+    flex-direction: column;
+    background: rgba(241, 245, 249, 0.8);
+    border: 1px solid var(--surface-border);
+    padding: 12px;
+    border-radius: 8px;
+    gap: 12px;
+}
+
+@media (min-width: 500px) {
+    .fileListItem {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.fileListInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.fileEditorControls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+@media (min-width: 600px) {
+    .fileEditorControls {
+        flex-direction: row;
+    }
+}
+
+.originalName {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.removeBtn {
+    background: none;
+    border: 1px solid #fca5a5;
+    color: #ef4444;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+@media (min-width: 500px) {
+    .removeBtn {
+        align-self: center;
+        font-size: 1.5rem;
+        border: none;
+        padding: 0 4px;
+        line-height: 1;
+    }
+}
+
+.removeBtn:hover {
+    background: #fee2e2;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+    .tableWrapper {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px;
+}
+
+.table th,
+.table td {
+    padding: 12px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+
+    .table th,
+    .table td {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    background: rgba(248, 250, 252, 0.5);
+}
+
+@media (min-width: 768px) {
+    .table th {
+        font-size: 0.8rem;
+    }
+}
+
+.table tr:hover {
+    background: rgba(241, 245, 249, 0.5);
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary-accent);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.subjectBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.deleteBtn {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #fca5a5;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.deleteBtn:hover {
+    background: #fee2e2;
+}

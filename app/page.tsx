@@ -106,7 +106,7 @@ export default function Library() {
         <div className={`animate-fade-in ${styles.libraryPage}`}>
             <header className={`glass ${styles.hero}`}>
                 <div className={styles.heroContent}>
-                    <h1 className={`gradient-text ${styles.title}`}>ITS Engineering College</h1>
+                    <img src="/logo.png" alt="ITS Engineering College Logo" className={styles.logo} />
                     <p className={styles.subtitle}>Unified Question Paper Library</p>
 
                     <div className={styles.searchBar}>
@@ -208,6 +208,25 @@ export default function Library() {
                     </main>
                 </div>
             </div>
+
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <div className={styles.footerSection}>
+                        <h4>Contact Us</h4>
+                        <p><strong>Address:</strong> ITS Engineering College, 46, Knowledge Park-III, Greater Noida- 201308</p>
+                        <p><strong>Phone:</strong> Toll-Free: 1800-1800-840</p>
+                        <p><strong>Mobile:</strong> +91-8510010840, +91-8510010841, +91-8510010842</p>
+                        <p><strong>Email:</strong> admission.ec@its.edu.in</p>
+                    </div>
+                    <div className={styles.footerSection}>
+                        <h4>Anti-Ragging Helpline</h4>
+                        <p><strong>Phone:</strong> 9582647615, 7838555875</p>
+                    </div>
+                </div>
+                <div className={styles.copyright}>
+                    <p>&copy; 2026 Designed and developed by AS Studios.</p>
+                </div>
+            </footer>
 
         </div>
     );

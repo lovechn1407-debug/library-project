@@ -5,7 +5,7 @@
 
 .hero {
     text-align: center;
-    padding: 20px 12px;
+    padding: 12px 8px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -27,18 +27,21 @@
     margin: 0 auto;
 }
 
-.title {
-    font-size: 1.35rem;
-    margin-bottom: 2px;
-    line-height: 1.2;
+.logo {
+    max-height: 80px;
+    width: auto;
+    margin: 0 auto 12px auto;
+    display: block;
 }
 
 @media (min-width: 768px) {
-    .title {
-        font-size: 2.5rem;
-        margin-bottom: 8px;
+    .logo {
+        max-height: 100px;
+        margin-bottom: 20px;
     }
 }
+
+
 
 .subtitle {
     font-size: 0.85rem;
@@ -127,7 +130,7 @@
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 12px;
+    padding: 8px;
 }
 
 @media (min-width: 768px) {
@@ -139,7 +142,7 @@
 .layout {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
     align-items: stretch;
 }
 
@@ -560,4 +563,48 @@
     .emptyState p {
         font-size: 0.9rem;
     }
+}
+
+/* Footer Section */
+.footer {
+    background: #ffffff;
+    border-top: 1px solid var(--surface-border);
+    padding: 30px 20px 20px;
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.footerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .footerContent {
+        flex-direction: row;
+        justify-content: space-around;
+        text-align: left;
+    }
+}
+
+.footerSection h4 {
+    color: #1e293b;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.footerSection p {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.copyright {
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid var(--surface-border);
 }

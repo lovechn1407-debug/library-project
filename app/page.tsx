@@ -135,32 +135,34 @@ export default function Library() {
                             <button onClick={clearFilters} className={styles.clearBtn}>Clear All</button>
                         </div>
 
-                        <div className={styles.filterGroup}>
-                            <label>Course</label>
-                            <select className="input-premium" value={filterCourse} onChange={e => setFilterCourse(e.target.value)}>
-                                {availableCourses.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                        </div>
+                        <div className={styles.filterControlsWrapper}>
+                            <div className={styles.filterGroup}>
+                                <label>Course</label>
+                                <select className="input-premium" value={filterCourse} onChange={e => setFilterCourse(e.target.value)}>
+                                    {availableCourses.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
 
-                        <div className={styles.filterGroup}>
-                            <label>Subject</label>
-                            <select className="input-premium" value={filterSubject} onChange={e => setFilterSubject(e.target.value)}>
-                                {availableSubjects.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
+                            <div className={styles.filterGroup}>
+                                <label>Subject</label>
+                                <select className="input-premium" value={filterSubject} onChange={e => setFilterSubject(e.target.value)}>
+                                    {availableSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
 
-                        <div className={styles.filterGroup}>
-                            <label>Semester</label>
-                            <select className="input-premium" value={filterSem} onChange={e => setFilterSem(e.target.value)}>
-                                {availableSems.map(s => <option key={s} value={s}>{s === 'All' ? 'All' : `Semester ${s}`}</option>)}
-                            </select>
-                        </div>
+                            <div className={styles.filterGroup}>
+                                <label>Semester</label>
+                                <select className="input-premium" value={filterSem} onChange={e => setFilterSem(e.target.value)}>
+                                    {availableSems.map(s => <option key={s} value={s}>{s === 'All' ? 'All' : `Semester ${s}`}</option>)}
+                                </select>
+                            </div>
 
-                        <div className={styles.filterGroup}>
-                            <label>Academic Year</label>
-                            <select className="input-premium" value={filterYear} onChange={e => setFilterYear(e.target.value)}>
-                                {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
+                            <div className={styles.filterGroup}>
+                                <label>Academic Year</label>
+                                <select className="input-premium" value={filterYear} onChange={e => setFilterYear(e.target.value)}>
+                                    {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                            </div>
                         </div>
                     </aside>
 

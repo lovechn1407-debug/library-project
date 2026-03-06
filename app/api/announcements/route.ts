@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
         const announcements = await prisma.announcement.findMany({
             orderBy: {
@@ -16,7 +16,7 @@ export async function GET() {
     }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
         const body = await req.json();
         const { text, color, isBold, isItalic, isUnderline, orderId } = body;

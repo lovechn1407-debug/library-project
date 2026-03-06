@@ -17,12 +17,51 @@ const FileIcon = () => (
     </svg>
 );
 
+const AnnouncementTicker = ({ announcements }: { announcements: any[] }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        if (!announcements || announcements.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % announcements.length);
+        }, 8000); // Change banner every 8 seconds
+        return () => clearInterval(interval);
+    }, [announcements]);
+
+    if (!announcements || announcements.length === 0) return null;
+
+    return (
+        <div className={styles.marqueeSection}>
+            <div className={styles.marqueeTrack} style={{ transform: `translateY(-${currentIndex * 48}px)` }}>
+                {announcements.map((ann, idx) => (
+                    <div key={ann.id || idx} className={styles.marqueeSlide}>
+                        <div
+                            className={styles.marqueeTextInner}
+                            style={{
+                                color: ann.color || '#000000',
+                                fontWeight: ann.isBold ? 'bold' : 'normal',
+                                fontStyle: ann.isItalic ? 'italic' : 'normal',
+                                textDecoration: ann.isUnderline ? 'underline' : 'none',
+                                fontSize: '1.05rem'
+                            }}
+                        >
+                            {ann.text}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 export default function Library() {
     const router = useRouter();
 
     // Data State
     const [documents, setDocuments] = useState<any[]>([]);
     const [subjects, setSubjects] = useState<any[]>([]);
+    const [announcements, setAnnouncements] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Filter State
     const [search, setSearch] = useState('');
@@ -35,8 +74,18 @@ export default function Library() {
     const [sortOption, setSortOption] = useState('newest'); // 'newest', 'oldest', 'a-z'
 
     useEffect(() => {
-        fetch('/api/documents').then(res => res.json()).then(setDocuments);
-        fetch('/api/subjects').then(res => res.json()).then(setSubjects);
+        setLoading(true);
+        Promise.all([
+            fetch('/api/documents').then(res => res.json()).catch(() => []),
+            fetch('/api/subjects').then(res => res.json()).catch(() => []),
+            fetch('/api/announcements').then(res => res.json()).catch(() => [])
+        ]).then(([docs, subs, anns]) => {
+            setDocuments(Array.isArray(docs) ? docs : []);
+            setSubjects(Array.isArray(subs) ? subs : []);
+            setAnnouncements(Array.isArray(anns) ? anns : []);
+        }).finally(() => {
+            setLoading(false);
+        });
     }, []);
 
     // Compute available filters dynamically from raw DB options or Subject API
@@ -126,6 +175,8 @@ export default function Library() {
                 <button onClick={() => router.push('/admin/login')} className={styles.adminLink}>Admin Portal</button>
             </header>
 
+            <AnnouncementTicker announcements={announcements} />
+
             <div className={styles.container}>
                 <div className={styles.layout}>
                     {/* Sidebar Filters */}
@@ -181,21 +232,12 @@ export default function Library() {
                         </div>
 
                         <div className={styles.fileGrid}>
-                            {filteredAndSortedDocs.map(doc => (
-                                <div key={doc.id} className={`glass ${styles.fileCard}`}>
-                                    <div className={styles.fileIcon}><FileIcon /></div>
-                                    <div className={styles.fileInfo}>
-                                        <div className={styles.fileTags}>
-                                            <span className={styles.subjectBadge}>{doc.subject_tag || 'General'}</span>
-                                        </div>
-                                        <h4 className={styles.fileName}>{doc.file_name}</h4>
-                                        <p className={styles.fileMeta}>{doc.course} • Sem {doc.semester} • {doc.year}</p>
-                                        <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.downloadBtn}`}>Direct Download</a>
-                                    </div>
+                            {loading ? (
+                                <div className={styles.loaderContainer}>
+                                    <div className={styles.spinner}></div>
+                                    <p className={styles.loaderText}>Fetching Library Documents...</p>
                                 </div>
-                            ))}
-
-                            {filteredAndSortedDocs.length === 0 && (
+                            ) : filteredAndSortedDocs.length === 0 ? (
                                 <div className={styles.emptyState}>
                                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--surface-border)" strokeWidth="1" style={{ margin: '0 auto 16px', display: 'block' }}>
                                         <circle cx="11" cy="11" r="8"></circle>
@@ -205,6 +247,30 @@ export default function Library() {
                                     <p>Try adjusting your search criteria or clearing filters.</p>
                                     <button onClick={clearFilters} className="btn-premium btn-secondary" style={{ marginTop: '16px' }}>Clear Filters</button>
                                 </div>
+                            ) : (
+                                filteredAndSortedDocs.map(doc => {
+                                    const isLongTag = doc.subject_tag && doc.subject_tag.length > 15;
+                                    return (
+                                        <div key={doc.id} className={`glass ${styles.fileCard}`}>
+                                            <div className={styles.fileIcon}><FileIcon /></div>
+                                            <div className={styles.fileInfo}>
+                                                <div className={styles.fileTags}>
+                                                    <div className={styles.subjectBadgeWrapper}>
+                                                        <span
+                                                            className={styles.subjectBadgeScroll}
+                                                            style={!isLongTag ? { animation: 'none' } : {}}
+                                                        >
+                                                            {doc.subject_tag || 'General'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <h4 className={styles.fileName}>{doc.file_name}</h4>
+                                                <p className={styles.fileMeta}>{doc.course} • Sem {doc.semester} • {doc.year}</p>
+                                                <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.downloadBtn}`}>Direct Download</a>
+                                            </div>
+                                        </div>
+                                    );
+                                })
                             )}
                         </div>
                     </main>

@@ -260,16 +260,16 @@ export default function Library() {
                                 </div>
                             ) : (
                                 filteredAndSortedDocs.map(doc => {
-                                    const isLongTag = doc.subject_tag && doc.subject_tag.length > 15;
+                                    const isLongTag = doc.subject_tag && doc.subject_tag.length > 22;
                                     return (
                                         <div key={doc.id} className={`glass ${styles.fileCard}`}>
                                             <div className={styles.fileIcon}><FileIcon /></div>
                                             <div className={styles.fileInfo}>
                                                 <div className={styles.fileTags}>
-                                                    <div className={styles.subjectBadgeWrapper}>
+                                                    <div className={styles.subjectBadgeWrapper} style={{ width: '100%' }}>
                                                         <span
                                                             className={styles.subjectBadgeScroll}
-                                                            style={!isLongTag ? { animation: 'none' } : {}}
+                                                            style={!isLongTag ? { animation: 'none', paddingRight: 0 } : {}}
                                                         >
                                                             {doc.subject_tag || 'General'}
                                                         </span>

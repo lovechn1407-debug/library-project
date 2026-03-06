@@ -752,25 +752,31 @@
 
 /* ---------------- Scrolling Subject Tags ---------------- */
 .subjectBadgeWrapper {
-    max-width: 130px;
-    /* Constrain width to force scrolling if long */
+    max-width: 100%;
+    /* Take up available space in card */
     overflow: hidden;
-    display: inline-block;
-    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
     background: rgba(16, 185, 129, 0.1);
     border-radius: 20px;
-    padding: 4px 10px;
+    padding: 2px 8px;
+    /* Reduced vertical padding */
+    height: 22px;
+    /* Fixed small height */
 }
 
 .subjectBadgeScroll {
     display: inline-block;
     white-space: nowrap;
     color: #059669;
-    font-size: 0.75rem;
+    font-size: 0.70rem;
+    /* Slightly smaller font to fit height */
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    animation: scrollSubjectText 6s linear infinite;
+    animation: scrollSubjectText 8s linear infinite;
+    padding-right: 16px;
+    /* Space before it repeats/returns */
 }
 
 /* Standard pause-scroll-pause-return animation */
@@ -784,12 +790,12 @@
     }
 
     45% {
-        transform: translateX(calc(-100% + 110px));
+        transform: translateX(calc(-100% + 140px));
+        /* Assuming approx card width relative */
     }
 
-    /* 110px leaves approx 20px padding margin */
     55% {
-        transform: translateX(calc(-100% + 110px));
+        transform: translateX(calc(-100% + 140px));
     }
 
     85% {

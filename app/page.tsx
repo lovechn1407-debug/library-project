@@ -19,36 +19,46 @@ const FileIcon = () => (
 
 const AnnouncementTicker = ({ announcements }: { announcements: any[] }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [animationKey, setAnimationKey] = useState(0);
 
     useEffect(() => {
         if (!announcements || announcements.length <= 1) return;
         const interval = setInterval(() => {
             setCurrentIndex(prev => (prev + 1) % announcements.length);
-        }, 8000); // Change banner every 8 seconds
+            setAnimationKey(prev => prev + 1); // Triggers re-render to reset CSS animation
+        }, 12000); // 12 seconds per announcement
         return () => clearInterval(interval);
     }, [announcements]);
 
     if (!announcements || announcements.length === 0) return null;
 
     return (
-        <div className={styles.marqueeSection}>
-            <div className={styles.marqueeTrack} style={{ transform: `translateY(-${currentIndex * 48}px)` }}>
-                {announcements.map((ann, idx) => (
-                    <div key={ann.id || idx} className={styles.marqueeSlide}>
-                        <div
-                            className={styles.marqueeTextInner}
-                            style={{
-                                color: ann.color || '#000000',
-                                fontWeight: ann.isBold ? 'bold' : 'normal',
-                                fontStyle: ann.isItalic ? 'italic' : 'normal',
-                                textDecoration: ann.isUnderline ? 'underline' : 'none',
-                                fontSize: '1.05rem'
-                            }}
-                        >
-                            {ann.text}
+        <div className={styles.premiumMarqueeWrapper}>
+            <div className={styles.premiumMarqueeLabel}>
+                <span className={styles.pulseDot}></span>
+                Latest
+            </div>
+            <div className={styles.marqueeTrack} style={{ transform: `translateY(-${currentIndex * 44}px)` }}>
+                {announcements.map((ann, idx) => {
+                    const isActive = idx === currentIndex;
+                    return (
+                        <div key={ann.id || idx} className={styles.marqueeSlide}>
+                            <div
+                                key={isActive ? animationKey : idx}
+                                className={`${styles.marqueeTextInner} ${isActive ? styles.activeMarquee : ''}`}
+                                style={{
+                                    color: ann.color || '#334155',
+                                    fontWeight: ann.isBold ? 'bold' : '500',
+                                    fontStyle: ann.isItalic ? 'italic' : 'normal',
+                                    textDecoration: ann.isUnderline ? 'underline' : 'none',
+                                    fontSize: '0.95rem'
+                                }}
+                            >
+                                {ann.text}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
@@ -173,9 +183,10 @@ export default function Library() {
                     </div>
                 </div>
                 <button onClick={() => router.push('/admin/login')} className={styles.adminLink}>Admin Portal</button>
+                <div style={{ marginTop: '24px' }}>
+                    <AnnouncementTicker announcements={announcements} />
+                </div>
             </header>
-
-            <AnnouncementTicker announcements={announcements} />
 
             <div className={styles.container}>
                 <div className={styles.layout}>

@@ -687,7 +687,7 @@
 
 .cardActions {
     display: flex;
-    gap: 8px;
+    gap: 0;
     width: 100%;
     margin-top: auto;
 }
@@ -697,16 +697,14 @@
     font-size: 0.75rem;
     padding: 8px;
     text-align: center;
-    border-radius: 6px;
-    /* Retained from original, not explicitly removed by instruction */
+    border-radius: 0 6px 6px 0;
 }
 
 @media (min-width: 600px) {
     .downloadBtn {
         font-size: 0.9rem;
         padding: 10px;
-        border-radius: 8px;
-        /* Retained from original, not explicitly removed by instruction */
+        border-radius: 0 8px 8px 0;
     }
 }
 
@@ -718,7 +716,8 @@
     background: transparent;
     color: var(--primary-accent);
     border: 1px solid var(--primary-accent);
-    border-radius: 8px;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
     font-weight: 600;
     transition: all 0.2s;
     text-decoration: none;
@@ -735,7 +734,7 @@
     .viewBtn {
         font-size: 0.9rem;
         padding: 10px 16px;
-        border-radius: 8px;
+        border-radius: 8px 0 0 8px;
     }
 }
 

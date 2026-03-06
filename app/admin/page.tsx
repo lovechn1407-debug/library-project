@@ -10,10 +10,11 @@ interface FileUpload {
 }
 
 export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'settings'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'settings' | 'announcements'>('dashboard');
 
     const [documents, setDocuments] = useState<any[]>([]);
     const [subjects, setSubjects] = useState<any[]>([]);
+    const [announcements, setAnnouncements] = useState<any[]>([]);
 
     const [isUploading, setIsUploading] = useState(false);
     const router = useRouter();
@@ -28,6 +29,13 @@ export default function AdminDashboard() {
     const [newSubjectName, setNewSubjectName] = useState('');
     const [newSubjectCourse, setNewSubjectCourse] = useState('B.Tech');
 
+    // Announcements State
+    const [announcementText, setAnnouncementText] = useState('');
+    const [announcementColor, setAnnouncementColor] = useState('#000000');
+    const [isBold, setIsBold] = useState(false);
+    const [isItalic, setIsItalic] = useState(false);
+    const [isUnderline, setIsUnderline] = useState(false);
+
     const fetchDocuments = async () => {
         const res = await fetch('/api/documents');
         if (res.ok) setDocuments(await res.json());
@@ -38,9 +46,17 @@ export default function AdminDashboard() {
         if (res.ok) setSubjects(await res.json());
     };
 
+    const fetchAnnouncements = async () => {
+        const res = await fetch('/api/announcements');
+        if (res.ok) setAnnouncements(await res.json());
+    };
+
     useEffect(() => {
         if (activeTab === 'dashboard') {
             fetchDocuments();
+        }
+        if (activeTab === 'announcements') {
+            fetchAnnouncements();
         }
         fetchSubjects(); // Always fetch subjects to populate dropdowns
     }, [activeTab]);
@@ -143,6 +159,69 @@ export default function AdminDashboard() {
         if (res.ok) fetchSubjects();
     };
 
+    // ------------------ ANNOUNCEMENTS LOGIC ------------------
+
+    const handleAddAnnouncement = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!announcementText.trim()) return;
+
+        const maxOrderId = announcements.length > 0 ? Math.max(...announcements.map(a => a.orderId)) : 0;
+
+        const res = await fetch('/api/announcements', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: announcementText,
+                color: announcementColor,
+                isBold,
+                isItalic,
+                isUnderline,
+                orderId: maxOrderId + 1
+            })
+        });
+
+        if (res.ok) {
+            setAnnouncementText('');
+            setIsBold(false);
+            setIsItalic(false);
+            setIsUnderline(false);
+            fetchAnnouncements();
+        } else {
+            alert('Failed to add announcement');
+        }
+    };
+
+    const handleDeleteAnnouncement = async (id: number) => {
+        if (!confirm("Delete this announcement?")) return;
+        const res = await fetch(`/api/announcements/${id}`, { method: 'DELETE' });
+        if (res.ok) fetchAnnouncements();
+    };
+
+    const handleReorderAnnouncement = async (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === announcements.length - 1) return;
+
+        const current = announcements[index];
+        const swapIdx = direction === 'up' ? index - 1 : index + 1;
+        const target = announcements[swapIdx];
+
+        const tempOrder = current.orderId;
+
+        await fetch(`/api/announcements/${current.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...current, orderId: target.orderId })
+        });
+
+        await fetch(`/api/announcements/${target.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...target, orderId: tempOrder })
+        });
+
+        fetchAnnouncements();
+    };
+
 
     // Helper definitions
     const availableCourses = ['B.Tech', 'B.Pharm', 'BBA', 'BCA', 'MCA'];
@@ -165,6 +244,12 @@ export default function AdminDashboard() {
                             onClick={() => setActiveTab('settings')}
                         >
                             Settings (Subjects)
+                        </button>
+                        <button
+                            className={`${styles.tabBtn} ${activeTab === 'announcements' ? styles.tabActive : ''}`}
+                            onClick={() => setActiveTab('announcements')}
+                        >
+                            Announcements
                         </button>
                     </div>
                 </div>
@@ -340,6 +425,96 @@ export default function AdminDashboard() {
                                     {subjects.length === 0 && (
                                         <tr>
                                             <td colSpan={3} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>No subjects declared yet. Add one!</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'announcements' && (
+                <div className={styles.settingsGrid}>
+                    <div className={`glass ${styles.panel}`}>
+                        <h3>Create Announcement</h3>
+                        <form className={styles.form} onSubmit={handleAddAnnouncement}>
+                            <div className={styles.group}>
+                                <label>Announcement Text</label>
+                                <input type="text" className="input-premium" value={announcementText} onChange={e => setAnnouncementText(e.target.value)} placeholder="e.g. Welcome back to a new semester!" required />
+                            </div>
+                            <div className={styles.group}>
+                                <label>Text Color</label>
+                                <input type="color" value={announcementColor} onChange={e => setAnnouncementColor(e.target.value)} style={{ width: '100%', height: '40px', padding: '0', cursor: 'pointer', border: '1px solid var(--surface-border)', borderRadius: '6px' }} />
+                            </div>
+                            <div className={styles.row} style={{ gap: '16px', alignItems: 'center', marginTop: '8px' }}>
+                                <label style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={isBold} onChange={e => setIsBold(e.target.checked)} />
+                                    <b>Bold</b>
+                                </label>
+                                <label style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={isItalic} onChange={e => setIsItalic(e.target.checked)} />
+                                    <i>Italic</i>
+                                </label>
+                                <label style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={isUnderline} onChange={e => setIsUnderline(e.target.checked)} />
+                                    <u>Underline</u>
+                                </label>
+                            </div>
+                            <button type="submit" className="btn-premium" style={{ marginTop: '16px' }}>Add Announcement</button>
+                        </form>
+                    </div>
+
+                    <div className={`glass ${styles.panel}`} style={{ overflow: 'auto' }}>
+                        <h3>Manage Announcements</h3>
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Preview</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {announcements.map((ann, index) => (
+                                        <tr key={ann.id}>
+                                            <td>
+                                                <div style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
+                                                    <button
+                                                        onClick={() => handleReorderAnnouncement(index, 'up')}
+                                                        disabled={index === 0}
+                                                        style={{ background: 'none', border: 'none', cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.3 : 1, fontSize: '1.2rem' }}
+                                                    >
+                                                        &#8593;
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReorderAnnouncement(index, 'down')}
+                                                        disabled={index === announcements.length - 1}
+                                                        style={{ background: 'none', border: 'none', cursor: index === announcements.length - 1 ? 'not-allowed' : 'pointer', opacity: index === announcements.length - 1 ? 0.3 : 1, fontSize: '1.2rem' }}
+                                                    >
+                                                        &#8595;
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span style={{
+                                                    color: ann.color,
+                                                    fontWeight: ann.isBold ? 'bold' : 'normal',
+                                                    fontStyle: ann.isItalic ? 'italic' : 'normal',
+                                                    textDecoration: ann.isUnderline ? 'underline' : 'none'
+                                                }}>
+                                                    {ann.text}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button onClick={() => handleDeleteAnnouncement(ann.id)} className={styles.deleteBtn}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {announcements.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>No announcements active.</td>
                                         </tr>
                                     )}
                                 </tbody>

@@ -127,6 +127,86 @@
     border-color: #93c5fd;
 }
 
+/* --- Scroll Animation States --- */
+.hero,
+.heroContent,
+.logo,
+.subtitle,
+.searchBar,
+.adminLink,
+.announcementContainer {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.adminIcon {
+    display: none;
+}
+
+/* Scrolled Modifier applied when user scrolls down */
+.heroScrolled {
+    padding: 12px 16px;
+}
+
+@media (min-width: 768px) {
+    .heroScrolled {
+        padding: 16px 24px;
+    }
+}
+
+.heroScrolled .heroContent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1400px;
+    /* Expand to full width when minimized */
+}
+
+.heroScrolled .logo {
+    max-height: 48px;
+    margin: 0;
+}
+
+.heroScrolled .subtitle {
+    display: none;
+}
+
+.heroScrolled .searchBar {
+    margin: 0;
+    flex: 1;
+    max-width: 600px;
+}
+
+.heroScrolled .adminLink {
+    position: relative;
+    top: auto;
+    right: auto;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heroScrolled .adminText {
+    display: none;
+}
+
+.heroScrolled .adminIcon {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.announcementContainer {
+    margin-top: 16px;
+}
+
+.heroScrolled .announcementContainer {
+    margin-top: 12px;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -397,6 +477,8 @@
     transition: all 0.2s;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     height: 100%;
+    min-width: 0;
+    /* Prevent grid blowout from long text */
 }
 
 @media (min-width: 600px) {
@@ -444,6 +526,9 @@
     align-items: center;
     /* Center text on mobile */
     text-align: center;
+    min-width: 0;
+    /* Prevent inner flex item blowout */
+    width: 100%;
 }
 
 @media (min-width: 600px) {
@@ -455,6 +540,8 @@
 
 .fileTags {
     margin-bottom: 6px;
+    min-width: 0;
+    width: 100%;
 }
 
 .subjectBadge {

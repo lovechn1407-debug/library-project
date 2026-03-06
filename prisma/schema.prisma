@@ -33,3 +33,14 @@ model Subject {
   course    String   // Ties the subject to a specific course
   createdAt DateTime @default(now())
 }
+
+model Announcement {
+  id          Int      @id @default(autoincrement())
+  text        String
+  color       String   @default("#ffffff") // CSS color for the text
+  isBold      Boolean  @default(false)
+  isItalic    Boolean  @default(false)
+  isUnderline Boolean  @default(false)
+  orderId     Int      @default(0) // For custom sorting
+  createdAt   DateTime @default(now())
+}

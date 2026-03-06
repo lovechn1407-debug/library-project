@@ -264,7 +264,7 @@
 }
 
 .heroScrolled .searchBar {
-    margin: 0 0 0 24px;
+    margin: 0;
     /* Added spacing between logo and search bar */
     max-width: 600px;
 }
@@ -685,17 +685,55 @@
     }
 }
 
-.downloadBtn {
-    margin-top: auto;
+.cardActions {
+    display: flex;
+    gap: 8px;
     width: 100%;
+    margin-top: auto;
+}
+
+.downloadBtn {
+    flex: 1;
     font-size: 0.75rem;
-    padding: 6px 8px;
+    padding: 8px;
+    text-align: center;
     border-radius: 6px;
+    /* Retained from original, not explicitly removed by instruction */
 }
 
 @media (min-width: 600px) {
     .downloadBtn {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        padding: 10px;
+        border-radius: 8px;
+        /* Retained from original, not explicitly removed by instruction */
+    }
+}
+
+.viewBtn {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    padding: 8px 12px;
+    text-align: center;
+    background: transparent;
+    color: var(--primary-accent);
+    border: 1px solid var(--primary-accent);
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.viewBtn:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+@media (min-width: 600px) {
+    .viewBtn {
+        font-size: 0.9rem;
         padding: 10px 16px;
         border-radius: 8px;
     }

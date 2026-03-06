@@ -304,7 +304,10 @@ export default function Library() {
                                                 </div>
                                                 <h4 className={styles.fileName}>{doc.file_name}</h4>
                                                 <p className={styles.fileMeta}>{doc.course} • Sem {doc.semester} • {doc.year}</p>
-                                                <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.downloadBtn}`}>Direct Download</a>
+                                                <div className={styles.cardActions}>
+                                                    <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.viewBtn}`}>View</a>
+                                                    <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.downloadBtn}`}>Download</a>
+                                                </div>
                                             </div>
                                         </div>
                                     );

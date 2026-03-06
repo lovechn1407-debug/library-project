@@ -189,14 +189,19 @@ export default function Library() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
+                        <button onClick={() => router.push('/admin/login')} className={styles.adminIconBtn}>
+                            <svg className={styles.adminIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
                     </div>
+
+                    {/* Desktop/Full version of Admin Link on right side (hidden when scrolled) */}
+                    <button onClick={() => router.push('/admin/login')} className={styles.adminLink}>
+                        <span className={styles.adminText}>Admin Portal</span>
+                    </button>
                 </div>
-                <button onClick={() => router.push('/admin/login')} className={styles.adminLink}>
-                    <span className={styles.adminText}>Admin</span>
-                    <svg className={styles.adminIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </button>
+
                 <div className={styles.announcementContainer}>
                     <AnnouncementTicker announcements={announcements} />
                 </div>
@@ -280,7 +285,7 @@ export default function Library() {
                                             <div className={styles.fileIcon}><FileIcon /></div>
                                             <div className={styles.fileInfo}>
                                                 <div className={styles.fileTags}>
-                                                    <div className={styles.subjectBadgeWrapper} style={{ width: '100%' }}>
+                                                    <div className={styles.subjectBadgeWrapper} style={isLongTag ? { width: '100%' } : { width: 'fit-content' }}>
                                                         <span
                                                             className={styles.subjectBadgeScroll}
                                                             style={!isLongTag ? { animation: 'none', paddingRight: 0 } : {}}

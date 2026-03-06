@@ -128,18 +128,110 @@
 }
 
 /* --- Scroll Animation States --- */
-.hero,
-.heroContent,
-.logo,
-.subtitle,
-.searchBar,
-.adminLink,
-.announcementContainer {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.hero {
+    text-align: center;
+    padding: 12px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--surface-border);
+    transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.adminIcon {
-    display: none;
+@media (min-width: 768px) {
+    .hero {
+        padding: 40px 24px;
+    }
+}
+
+.heroContent {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo {
+    max-height: 80px;
+    width: auto;
+    margin: 0 auto 12px auto;
+    display: block;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+    .logo {
+        max-height: 100px;
+        margin-bottom: 20px;
+    }
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    max-height: 50px;
+    opacity: 1;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+}
+
+@media (min-width: 768px) {
+    .subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 24px;
+    }
+}
+
+.searchBar {
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.searchInput {
+    flex: 1;
+}
+
+.adminIconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--primary-accent);
+    border: 1px solid #bfdbfe;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    width: 0;
+    padding: 0;
+    border-width: 0;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .adminIconBtn {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.adminIconBtn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
 }
 
 /* Scrolled Modifier applied when user scrolls down */
@@ -154,13 +246,9 @@
 }
 
 .heroScrolled .heroContent {
-    display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
-    gap: 16px;
     max-width: 1400px;
-    /* Expand to full width when minimized */
 }
 
 .heroScrolled .logo {
@@ -169,38 +257,37 @@
 }
 
 .heroScrolled .subtitle {
-    display: none;
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
 }
 
 .heroScrolled .searchBar {
     margin: 0;
-    flex: 1;
     max-width: 600px;
 }
 
-.heroScrolled .adminLink {
-    position: relative;
-    top: auto;
-    right: auto;
+.heroScrolled .adminIconBtn {
+    opacity: 1;
+    width: 40px;
     padding: 8px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-width: 1px;
 }
 
-.heroScrolled .adminText {
-    display: none;
+@media (min-width: 768px) {
+    .heroScrolled .adminIconBtn {
+        width: 50px;
+    }
 }
 
-.heroScrolled .adminIcon {
-    display: block;
-    width: 20px;
-    height: 20px;
+.heroScrolled .adminLink {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .announcementContainer {
     margin-top: 16px;
+    transition: margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .heroScrolled .announcementContainer {

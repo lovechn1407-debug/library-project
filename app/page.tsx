@@ -100,11 +100,19 @@ export default function Library() {
     }, []);
 
     useEffect(() => {
+        let scrollTimeout: NodeJS.Timeout;
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 40);
+            clearTimeout(scrollTimeout);
+            // Debounce the state update to avoid glitches while actively scrolling
+            scrollTimeout = setTimeout(() => {
+                setIsScrolled(window.scrollY > 40);
+            }, 50); // Small 50ms delay
         };
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(scrollTimeout);
+        };
     }, []);
 
     // Compute available filters dynamically from raw DB options or Subject API

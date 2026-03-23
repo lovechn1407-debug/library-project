@@ -47,8 +47,8 @@ export async function GET() {
             select: { name: true, course: true },
         })
 
-        const courses = Array.from(new Set(subjects.map((s) => String(s.course))))
-        courses.forEach((course) => {
+        const courses: string[] = Array.from(new Set(subjects.map((s: any) => String(s.course))))
+        courses.forEach((course: string) => {
             const safeCourse = course.replace(/&/g, 'and').replace(/[^a-zA-Z0-9.\- ]/g, '')
             urls.push({
                 loc: `${baseUrl}?course=${encodeURIComponent(safeCourse)}`,
@@ -58,8 +58,8 @@ export async function GET() {
             })
         })
 
-        const uniqueSubjects = Array.from(new Set(subjects.map((s) => String(s.name))))
-        uniqueSubjects.forEach((subject) => {
+        const uniqueSubjects: string[] = Array.from(new Set(subjects.map((s: any) => String(s.name))))
+        uniqueSubjects.forEach((subject: string) => {
             const safeSubject = subject.replace(/&/g, 'and').replace(/[^a-zA-Z0-9.\- ]/g, '')
             urls.push({
                 loc: `${baseUrl}?subject=${encodeURIComponent(safeSubject)}`,

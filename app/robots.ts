@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: ['/admin/', '/api/'], // Prevent indexing admin panel and raw API routes
+            disallow: ['/admin/'], // Only prevent indexing admin panel
         },
         sitemap: 'https://itscollege-library.vercel.app/sitemap.xml',
     }

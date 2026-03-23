@@ -1,421 +1,342 @@
-<?php
-session_start();
-if (!isset($_SESSION['admin_logged_in'])) {
-    header("Location: login.php");
-    exit();
-}
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - ITS Library</title>
-    <link rel="stylesheet" href="../public/style.css">
-    <style>
-        /* Embedding Admin-specific core styles over the public baseline */
-        body { background: #f8fafc; margin: 0; font-family: 'Inter', sans-serif; padding-bottom: 40px; }
-        .dashboard { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .header h2 { margin: 0; font-size: 1.5rem; color: #1e293b; }
-        .tabs { display: flex; gap: 10px; margin-top: 10px; }
-        .tab { padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 20px; cursor: pointer; transition: 0.2s; font-weight: 500; font-size: 0.9rem; }
-        .tab.active { background: #3b82f6; color: white; }
-        .panel { display: none; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .panel.active { display: block; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 2fr; } }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #475569; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #3b82f6; color: white; transition: 0.2s; }
-        .btn:hover { background: #2563eb; }
-        .btn-danger { background: #ef4444; }
-        .btn-danger:hover { background: #dc2626; }
-        .table-wrapper { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.9rem; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: #e0f2fe; color: #0284c7; }
-        .file-drop { border: 2px dashed #cbd5e1; padding: 40px 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: 0.2s; margin-bottom: 20px; }
-        .file-drop:hover { border-color: #3b82f6; background: #eff6ff; }
-        .file-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .file-row input, .file-row select { margin: 0; }
-        
-        /* Skeleton Loader */
-        .skeleton {
-            background: #e2e8f0;
-            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
-            border-radius: 5px;
-            background-size: 200% 100%;
-            animation: 1.5s shine linear infinite;
-        }
+'use client';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './page.module.css';
 
-        @keyframes shine {
-            to {
-                background-position-x: -200%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard">
-        <header class="header">
-            <div>
-                <h2>Admin Panel</h2>
-                <div class="tabs">
-                    <button class="tab active" onclick="switchTab('manage')">Manage Documents</button>
-                    <button class="tab" onclick="switchTab('settings')">Settings (Subjects)</button>
-                </div>
-            </div>
-            <div>
-                <a href="../public/index.html" class="btn" style="background:#cbd5e1; color:#0f172a; text-decoration:none; margin-right:10px;">Public Library</a>
-                <a href="../api/logout.php" class="btn btn-danger" style="text-decoration:none;">Logout</a>
-            </div>
-        </header>
+// Light Theme File Icon SVG (Blue/Doc)
+const FileIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" fill="url(#paint0_linear_file)" />
+        <path d="M14 2V8H20" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <defs>
+            <linearGradient id="paint0_linear_file" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#93c5fd" />
+                <stop offset="1" stopColor="#60a5fa" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
 
-        <!-- MANAGE DOCUMENTS TAB -->
-        <div id="manage" class="panel active">
-            <div class="grid">
-                <!-- Upload Form -->
-                <div>
-                    <h3>Upload Documents</h3>
-                    <form id="uploadForm">
-                        <div class="form-group">
-                            <label>Course</label>
-                            <select id="courseSelect" required onchange="filterSubjects()">
-                                <option value="B.Tech">B.Tech</option>
-                                <option value="B.Pharm">B.Pharm</option>
-                                <option value="BBA">BBA</option>
-                                <option value="BCA">BCA</option>
-                                <option value="MCA">MCA</option>
-                            </select>
+const AnnouncementTicker = ({ announcements }: { announcements: any[] }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [animationKey, setAnimationKey] = useState(0);
+
+    useEffect(() => {
+        if (!announcements || announcements.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % announcements.length);
+            setAnimationKey(prev => prev + 1); // Triggers re-render to reset CSS animation
+        }, 12000); // 12 seconds per announcement
+        return () => clearInterval(interval);
+    }, [announcements]);
+
+    if (!announcements || announcements.length === 0) return null;
+
+    return (
+        <div className={styles.premiumMarqueeWrapper}>
+            <div className={styles.premiumMarqueeLabel}>
+                <span className={styles.pulseDot}></span>
+                Latest
+            </div>
+            <div className={styles.marqueeTrack} style={{ transform: `translateY(-${currentIndex * 44}px)` }}>
+                {announcements.map((ann, idx) => {
+                    const isActive = idx === currentIndex;
+                    return (
+                        <div key={ann.id || idx} className={styles.marqueeSlide}>
+                            <div
+                                key={isActive ? animationKey : idx}
+                                className={`${styles.marqueeTextInner} ${isActive ? styles.activeMarquee : ''}`}
+                                style={{
+                                    color: ann.color || '#334155',
+                                    fontWeight: ann.isBold ? 'bold' : '500',
+                                    fontStyle: ann.isItalic ? 'italic' : 'normal',
+                                    textDecoration: ann.isUnderline ? 'underline' : 'none',
+                                    fontSize: '0.95rem'
+                                }}
+                            >
+                                {ann.text}
+                            </div>
                         </div>
-                        <div style="display: flex; gap:10px;">
-                            <div class="form-group" style="flex:1;">
-                                <label>Semester</label>
-                                <select id="semesterSelect" required>
-                                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                                    <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+export default function Library() {
+    const router = useRouter();
+
+    // Data State
+    const [documents, setDocuments] = useState<any[]>([]);
+    const [subjects, setSubjects] = useState<any[]>([]);
+    const [announcements, setAnnouncements] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Filter State
+    const [search, setSearch] = useState('');
+    const [filterCourse, setFilterCourse] = useState('All');
+    const [filterSem, setFilterSem] = useState('All');
+    const [filterYear, setFilterYear] = useState('All');
+    const [filterSubject, setFilterSubject] = useState('All');
+
+    // Sort State
+    const [sortOption, setSortOption] = useState('newest'); // 'newest', 'oldest', 'a-z'
+
+    useEffect(() => {
+        setLoading(true);
+        Promise.all([
+            fetch('/api/documents').then(res => res.json()).catch(() => []),
+            fetch('/api/subjects').then(res => res.json()).catch(() => []),
+            fetch('/api/announcements').then(res => res.json()).catch(() => [])
+        ]).then(([docs, subs, anns]) => {
+            setDocuments(Array.isArray(docs) ? docs : []);
+            setSubjects(Array.isArray(subs) ? subs : []);
+            setAnnouncements(Array.isArray(anns) ? anns : []);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }, []);
+
+    useEffect(() => {
+        let scrollTimeout: NodeJS.Timeout;
+        const handleScroll = () => {
+            clearTimeout(scrollTimeout);
+            // Debounce the state update to avoid glitches while actively scrolling
+            scrollTimeout = setTimeout(() => {
+                setIsScrolled(window.scrollY > 40);
+            }, 50); // Small 50ms delay
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(scrollTimeout);
+        };
+    }, []);
+
+    // Compute available filters dynamically from raw DB options or Subject API
+    const availableCourses = ['All', 'B.Tech', 'B.Pharm', 'BBA', 'BCA', 'MCA'];
+    const availableSems = ['All', '1', '2', '3', '4', '5', '6', '7', '8'];
+    const availableYears = ['All', '2025-26', '2024-25', '2023-24', '2022-23', '2021-22', '2020-21', '2019-20', '2018-19', '2017-18'];
+
+    // Filter Subjects based on selected Course
+    const availableSubjects = useMemo(() => {
+        let subs = subjects;
+        if (filterCourse !== 'All') {
+            subs = subjects.filter(s => s.course === filterCourse);
+        }
+        return ['All', ...Array.from(new Set(subs.map(s => s.name)))];
+    }, [subjects, filterCourse]);
+
+    // When Course changes, reset Subject if it's no longer valid
+    useEffect(() => {
+        if (filterCourse !== 'All' && filterSubject !== 'All' && !availableSubjects.includes(filterSubject)) {
+            setFilterSubject('All');
+        }
+    }, [filterCourse, availableSubjects, filterSubject]);
+
+    // Apply Filters and Sorting
+    const filteredAndSortedDocs = useMemo(() => {
+        let filtered = documents.filter(doc => {
+            // Global Search Text
+            const searchMatch = search === '' ||
+                doc.file_name.toLowerCase().includes(search.toLowerCase()) ||
+                doc.course.toLowerCase().includes(search.toLowerCase()) ||
+                (doc.subject_tag && doc.subject_tag.toLowerCase().includes(search.toLowerCase()));
+
+            if (!searchMatch) return false;
+
+            // Sidebar Filters
+            if (filterCourse !== 'All' && doc.course !== filterCourse) return false;
+            if (filterSem !== 'All' && doc.semester.toString() !== filterSem) return false;
+            if (filterYear !== 'All' && doc.year !== filterYear) return false;
+            if (filterSubject !== 'All' && doc.subject_tag !== filterSubject) return false;
+
+            return true;
+        });
+
+        // Sorting
+        return filtered.sort((a, b) => {
+            if (sortOption === 'newest') {
+                return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+            } else if (sortOption === 'oldest') {
+                return new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime();
+            } else if (sortOption === 'a-z') {
+                return a.file_name.localeCompare(b.file_name);
+            }
+            return 0;
+        });
+
+    }, [documents, search, filterCourse, filterSem, filterYear, filterSubject, sortOption]);
+
+    const clearFilters = () => {
+        setSearch('');
+        setFilterCourse('All');
+        setFilterSem('All');
+        setFilterYear('All');
+        setFilterSubject('All');
+    };
+
+    return (
+        <div className={`animate-fade-in ${styles.libraryPage}`}>
+            <header className={`glass ${styles.hero} ${isScrolled ? styles.heroScrolled : ''}`}>
+                <div className={styles.heroContent}>
+                    <img src="/logo.png" alt="ITS Engineering College Logo" className={styles.logo} />
+                    <p className={styles.subtitle}>Unified Question Paper Library</p>
+
+                    <div className={styles.searchBar}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.searchIcon}>
+                            <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M21 21L16.65 16.65" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Search library for papers..."
+                            className={`input-premium ${styles.searchInput}`}
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                        <button onClick={() => router.push('/admin/login')} className={styles.adminIconBtn}>
+                            <svg className={styles.adminIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Desktop/Full version of Admin Link on right side (hidden when scrolled) */}
+                    <button onClick={() => router.push('/admin/login')} className={styles.adminLink}>
+                        <span className={styles.adminText}>Admin Portal</span>
+                    </button>
+                </div>
+
+                <div className={styles.announcementContainer}>
+                    <AnnouncementTicker announcements={announcements} />
+                </div>
+            </header>
+
+            <div className={styles.container}>
+                <div className={styles.layout}>
+                    {/* Sidebar Filters */}
+                    <aside className={`glass ${styles.sidebar}`}>
+                        <div className={styles.filterHeader}>
+                            <h3>Filters</h3>
+                            <button onClick={clearFilters} className={styles.clearBtn}>Clear All</button>
+                        </div>
+
+                        <div className={styles.filterControlsWrapper}>
+                            <div className={styles.filterGroup}>
+                                <label>Course</label>
+                                <select className="input-premium" value={filterCourse} onChange={e => setFilterCourse(e.target.value)}>
+                                    {availableCourses.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
-                            <div class="form-group" style="flex:1;">
-                                <label>Year</label>
-                                <input type="text" id="yearInput" value="2024-25" required>
+
+                            <div className={styles.filterGroup}>
+                                <label>Subject</label>
+                                <select className="input-premium" value={filterSubject} onChange={e => setFilterSubject(e.target.value)}>
+                                    {availableSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+
+                            <div className={styles.filterGroup}>
+                                <label>Semester</label>
+                                <select className="input-premium" value={filterSem} onChange={e => setFilterSem(e.target.value)}>
+                                    {availableSems.map(s => <option key={s} value={s}>{s === 'All' ? 'All' : `Semester ${s}`}</option>)}
+                                </select>
+                            </div>
+
+                            <div className={styles.filterGroup}>
+                                <label>Academic Year</label>
+                                <select className="input-premium" value={filterYear} onChange={e => setFilterYear(e.target.value)}>
+                                    {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Main Content Area */}
+                    <main className={styles.mainContent}>
+                        <div className={styles.resultsHeader}>
+                            <p className={styles.resultCount}>Showing <strong>{filteredAndSortedDocs.length}</strong> document(s)</p>
+                            <div className={styles.sortControl}>
+                                <label>Sort By:</label>
+                                <select className="input-premium" value={sortOption} onChange={e => setSortOption(e.target.value)}>
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="a-z">Alphabetical (A-Z)</option>
+                                </select>
                             </div>
                         </div>
 
-                        <div class="file-drop" onclick="document.getElementById('fileInput').click()">
-                            <input type="file" id="fileInput" multiple style="display:none;" onchange="handleFiles(this.files)">
-                            <strong>Click to select PDFs</strong>
+                        <div className={styles.fileGrid}>
+                            {loading ? (
+                                <div className={styles.loaderContainer}>
+                                    <div className={styles.spinner}></div>
+                                    <p className={styles.loaderText}>Fetching Library Documents...</p>
+                                </div>
+                            ) : filteredAndSortedDocs.length === 0 ? (
+                                <div className={styles.emptyState}>
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--surface-border)" strokeWidth="1" style={{ margin: '0 auto 16px', display: 'block' }}>
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    <h3>No documents found</h3>
+                                    <p>Try adjusting your search criteria or clearing filters.</p>
+                                    <button onClick={clearFilters} className="btn-premium btn-secondary" style={{ marginTop: '16px' }}>Clear Filters</button>
+                                </div>
+                            ) : (
+                                filteredAndSortedDocs.map(doc => {
+                                    const isLongTag = doc.subject_tag && doc.subject_tag.length > 22;
+                                    return (
+                                        <div key={doc.id} className={`glass ${styles.fileCard}`}>
+                                            <div className={styles.fileIcon}><FileIcon /></div>
+                                            <div className={styles.fileInfo}>
+                                                <div className={styles.fileTags}>
+                                                    <div className={styles.subjectBadgeWrapper} style={isLongTag ? { width: '100%' } : { width: 'fit-content' }}>
+                                                        <span
+                                                            className={styles.subjectBadgeScroll}
+                                                            style={!isLongTag ? { animation: 'none', paddingRight: 0 } : {}}
+                                                        >
+                                                            {doc.subject_tag || 'General'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <h4 className={styles.fileName}>{doc.file_name}</h4>
+                                                <p className={styles.fileMeta}>{doc.course} • Sem {doc.semester} • {doc.year}</p>
+                                                <div className={styles.cardActions}>
+                                                    <a href={`/api/documents/download?id=${doc.id}&action=view`} target="_blank" className={`btn-premium ${styles.viewBtn}`}>View</a>
+                                                    <a href={`/api/documents/download?id=${doc.id}`} target="_blank" className={`btn-premium ${styles.downloadBtn}`}>Download</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
-                        
-                        <div id="fileList"></div>
-                        
-                        <button type="submit" class="btn" id="uploadBtn" style="width:100%; display:none;">Start Upload</button>
-                    </form>
-                </div>
-
-                <!-- Existing Documents -->
-                <div>
-                    <h3>Existing Documents</h3>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>File Name</th>
-                                    <th>Course</th>
-                                    <th>Sem</th>
-                                    <th>Subject Tag</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="documentsTableBody">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                    </main>
                 </div>
             </div>
-        </div>
 
-        <!-- SETTINGS TAB -->
-        <div id="settings" class="panel">
-            <div class="grid">
-                <div>
-                    <h3>Add New Subject</h3>
-                    <form id="subjectForm" onsubmit="addSubject(event)">
-                        <div class="form-group">
-                            <label>Subject Name</label>
-                            <input type="text" id="newSubjectName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Course</label>
-                            <select id="newSubjectCourse" required>
-                                <option value="B.Tech">B.Tech</option>
-                                <option value="B.Pharm">B.Pharm</option>
-                                <option value="BBA">BBA</option>
-                                <option value="BCA">BCA</option>
-                                <option value="MCA">MCA</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">Add Subject</button>
-                    </form>
-                </div>
-                <div>
-                    <h3>Existing Subjects</h3>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Subject Name</th>
-                                    <th>Course</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subjectsTableBody">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <div className={styles.footerSection}>
+                        <h4>Contact Us</h4>
+                        <p><strong>Address:</strong> ITS Engineering College, 46, Knowledge Park-III, Greater Noida- 201308</p>
+                        <p><strong>Phone:</strong> Toll-Free: 1800-1800-840</p>
+                        <p><strong>Mobile:</strong> +91-8510010840, +91-8510010841, +91-8510010842</p>
+                        <p><strong>Email:</strong> admission.ec@its.edu.in</p>
+                    </div>
+                    <div className={styles.footerSection}>
+                        <h4>Anti-Ragging Helpline</h4>
+                        <p><strong>Phone:</strong> 9582647615, 7838555875</p>
                     </div>
                 </div>
-            </div>
+                <div className={styles.copyright}>
+                    <p>&copy; 2026 Designed and developed by AS Studios.</p>
+                </div>
+            </footer>
+
         </div>
-    </div>
-
-    <!-- The Vanilla JS Port of the Admin Logic -->
-    <script>
-        let allSubjects = [];
-        let selectedFilesData = [];
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // --- Data Fetching ---
-        async function fetchSubjects() {
-            try {
-                const tbody = document.getElementById('subjectsTableBody');
-                let skeletonRows = '';
-                for(let i=0; i<3; i++) {
-                    skeletonRows += `
-                        <tr>
-                            <td><div class="skeleton" style="height: 20px; width: 70%;"></div></td>
-                            <td><div class="skeleton" style="height: 24px; width: 60px; border-radius: 12px;"></div></td>
-                            <td><div class="skeleton" style="height: 30px; width: 60px; border-radius: 6px;"></div></td>
-                        </tr>
-                    `;
-                }
-                if(tbody) tbody.innerHTML = skeletonRows;
-
-                const res = await fetch('../api/get_subjects.php');
-                const data = await res.json();
-                if (data.error) { alert("Database Error: " + data.error); return; }
-                allSubjects = data;
-                renderSubjectsTable();
-                filterSubjects(); // Update dropdowns in file uploader
-            } catch(e) { console.error(e); }
-        }
-
-        async function fetchDocuments() {
-            try {
-                const tbody = document.getElementById('documentsTableBody');
-                let skeletonRows = '';
-                for(let i=0; i<5; i++) {
-                    skeletonRows += `
-                        <tr>
-                            <td><div class="skeleton" style="height: 20px; width: 80%;"></div></td>
-                            <td><div class="skeleton" style="height: 24px; width: 60px; border-radius: 12px;"></div></td>
-                            <td><div class="skeleton" style="height: 20px; width: 30px;"></div></td>
-                            <td><div class="skeleton" style="height: 24px; width: 80px; border-radius: 12px;"></div></td>
-                            <td><div class="skeleton" style="height: 30px; width: 60px; border-radius: 6px;"></div></td>
-                        </tr>
-                    `;
-                }
-                if(tbody) tbody.innerHTML = skeletonRows;
-
-                const res = await fetch('../api/get_documents.php');
-                const docs = await res.json();
-                if (docs.error) { console.error("Database Error: " + docs.error); return; }
-                
-                tbody.innerHTML = '';
-                
-                docs.forEach(doc => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${doc.file_name}</strong></td>
-                        <td><span class="badge">${doc.course}</span></td>
-                        <td>${doc.semester}</td>
-                        <td>${doc.subject_tag ? `<span class="badge" style="background:#dcfce7; color:#166534;">${doc.subject_tag}</span>` : '-'}</td>
-                        <td><button onclick="deleteDocument(${doc.id})" class="btn btn-danger" style="padding:6px 12px; font-size:0.8rem;">Delete</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch(e) { console.error("Network or parsing error in fetchDocuments:", e); }
-        }
-
-        // --- Subjects Logic ---
-        function renderSubjectsTable() {
-            const tbody = document.getElementById('subjectsTableBody');
-            tbody.innerHTML = '';
-            allSubjects.forEach(sub => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${sub.name}</strong></td>
-                    <td><span class="badge">${sub.course}</span></td>
-                    <td><button onclick="deleteSubject(${sub.id})" class="btn btn-danger" style="padding:6px 12px; font-size:0.8rem;">Remove</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function addSubject(e) {
-            e.preventDefault();
-            const name = document.getElementById('newSubjectName').value;
-            const course = document.getElementById('newSubjectCourse').value;
-            
-            const res = await fetch('../api/add_subject.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, course })
-            });
-            
-            if(res.ok) {
-                document.getElementById('newSubjectName').value = '';
-                fetchSubjects();
-            }
-        }
-
-        async function deleteSubject(id) {
-            if(!confirm("Delete this subject?")) return;
-            const res = await fetch(`../api/delete_subject.php?id=${id}`);
-            if(res.ok) fetchSubjects();
-        }
-
-        // --- File Upload Logic ---
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
-                selectedFilesData.push({
-                    file: file,
-                    name: file.name,
-                    tag: ''
-                });
-            });
-            renderFileList();
-            document.getElementById('uploadBtn').style.display = selectedFilesData.length > 0 ? 'block' : 'none';
-        }
-
-        function renderFileList() {
-            const container = document.getElementById('fileList');
-            const currentCourse = document.getElementById('courseSelect').value;
-            const relevantSubjects = allSubjects.filter(s => s.course === currentCourse);
-            
-            container.innerHTML = '';
-            selectedFilesData.forEach((f, index) => {
-                const row = document.createElement('div');
-                row.className = 'file-row';
-                
-                // Name Input
-                const nameInput = document.createElement('input');
-                nameInput.type = 'text';
-                nameInput.value = f.name;
-                nameInput.onchange = (e) => { selectedFilesData[index].name = e.target.value; };
-                nameInput.style.flex = "2";
-                
-                // Subject Dropdown
-                const tagSelect = document.createElement('select');
-                tagSelect.style.flex = "1";
-                tagSelect.innerHTML = `<option value="">No Subject</option>`;
-                relevantSubjects.forEach(sub => {
-                    const opt = document.createElement('option');
-                    opt.value = sub.name;
-                    opt.textContent = sub.name;
-                    if (f.tag === sub.name) opt.selected = true;
-                    tagSelect.appendChild(opt);
-                });
-                tagSelect.onchange = (e) => { selectedFilesData[index].tag = e.target.value; };
-
-                // Remove Btn
-                const rmBtn = document.createElement('button');
-                rmBtn.textContent = 'X';
-                rmBtn.className = 'btn btn-danger';
-                rmBtn.type = 'button';
-                rmBtn.style.padding = '8px';
-                rmBtn.onclick = () => {
-                    selectedFilesData.splice(index, 1);
-                    renderFileList();
-                    if(selectedFilesData.length === 0) document.getElementById('uploadBtn').style.display = 'none';
-                };
-
-                row.appendChild(nameInput);
-                row.appendChild(tagSelect);
-                row.appendChild(rmBtn);
-                container.appendChild(row);
-            });
-        }
-
-        function filterSubjects() {
-            // Re-render file list to update subject dropdowns based on course change
-            renderFileList();
-        }
-
-        document.getElementById('uploadForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (selectedFilesData.length === 0) return;
-
-            const btn = document.getElementById('uploadBtn');
-            btn.textContent = 'Uploading to Telegram...';
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('course', document.getElementById('courseSelect').value);
-            formData.append('semester', document.getElementById('semesterSelect').value);
-            formData.append('year', document.getElementById('yearInput').value);
-
-            selectedFilesData.forEach(f => {
-                formData.append('files[]', f.file);
-                formData.append('file_names[]', f.name);
-                formData.append('subject_tags[]', f.tag);
-            });
-
-            try {
-                const res = await fetch('../api/upload.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (res.ok) {
-                    alert('Upload Success!');
-                    selectedFilesData = [];
-                    renderFileList();
-                    fetchDocuments();
-                    btn.style.display = 'none';
-                } else {
-                    const err = await res.json();
-                    let errMsg = err.error || 'Unknown Error';
-                    if (err.details) errMsg += '\\nDetails: ' + JSON.stringify(err.details, null, 2);
-                    alert('Upload Failed:\\n' + errMsg);
-                }
-            } catch(err) {
-                alert('Upload failed due to network error.');
-            } finally {
-                btn.textContent = 'Start Upload';
-                btn.disabled = false;
-            }
-        };
-
-        async function deleteDocument(id) {
-            if(!confirm("Delete this document?")) return;
-            const res = await fetch(`../api/delete_doc.php?id=${id}`);
-            if(res.ok) fetchDocuments();
-        }
-
-        // Init
-        fetchSubjects();
-        fetchDocuments();
-    </script>
-</body>
-</html>
+    );
+}

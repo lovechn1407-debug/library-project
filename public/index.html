@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="google-site-verification" content="V9397JdTDEbK7vOxKcCwXrxMojNclghNP4TiEbwehfI" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITS Engineering College Library</title>
     <!-- Combined globals.css + page.module.css -->
@@ -386,6 +385,109 @@
                 border-radius: 12px;
             }
         }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: #e2e8f0;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            border-radius: 5px;
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position-x: -200%;
+            }
+        }
+
+        .skeleton-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-card {
+                padding: 20px;
+                border-radius: 12px;
+                text-align: left;
+            }
+        }
+
+        .skeleton-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            align-self: center;
+            margin-bottom: 8px;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-icon {
+                align-self: flex-start;
+                margin-bottom: 16px;
+            }
+        }
+
+        .skeleton-badge {
+            width: 60px;
+            height: 16px;
+            border-radius: 10px;
+            margin: 0 auto 6px auto;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-badge {
+                margin: 0 0 6px 0;
+            }
+        }
+
+        .skeleton-title {
+            width: 80%;
+            height: 16px;
+            margin: 0 auto 4px auto;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-title {
+                height: 20px;
+                margin: 0 0 6px 0;
+            }
+        }
+
+        .skeleton-meta {
+            width: 60%;
+            height: 12px;
+            margin: 0 auto 10px auto;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-meta {
+                height: 14px;
+                margin: 0 0 16px 0;
+            }
+        }
+
+        .skeleton-btn {
+            width: 100%;
+            height: 28px;
+            border-radius: 6px;
+            margin-top: auto;
+        }
+
+        @media(min-width: 600px) {
+            .skeleton-btn {
+                height: 36px;
+                border-radius: 8px;
+            }
+        }
     </style>
 </head>
 
@@ -470,7 +572,7 @@
 
         <section class="content-area">
             <div class="results-header">
-                <span style="color:#64748b; font-size:0.9rem;" id="resultCount">Loading files...</span>
+                <span style="color:#64748b; font-size:0.9rem; display:flex; align-items:center;" id="resultCount"><span class="skeleton" style="display:inline-block; width:120px; height:20px; border-radius:4px;"></span></span>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <label style="font-size:0.8rem; font-weight:600; color:#64748b;">Sort By</label>
                     <select id="sortFilter"
@@ -483,7 +585,28 @@
             </div>
 
             <div class="file-grid" id="fileGrid">
-                <!-- Dynamically populated via JS -->
+                <!-- Skeletons explicitly to flash immediately on fast loads -->
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-icon"></div>
+                    <div style="flex:1; display:flex; flex-direction:column; width: 100%;">
+                        <div class="skeleton skeleton-badge"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-title" style="width: 60%;"></div>
+                        <div class="skeleton skeleton-meta" style="margin-top: 4px;"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-icon"></div>
+                    <div style="flex:1; display:flex; flex-direction:column; width: 100%;">
+                        <div class="skeleton skeleton-badge"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-title" style="width: 60%;"></div>
+                        <div class="skeleton skeleton-meta" style="margin-top: 4px;"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card" style="display:none;"></div><!-- Placeholder for grid responsiveness -->
             </div>
         </section>
     </main>
@@ -559,7 +682,24 @@
             params.append('sort', sortFilter.value);
 
             try {
-                fileGrid.innerHTML = '<div class="empty-state">Loading...</div>';
+                let skeletons = '';
+                for(let i=0; i<6; i++) {
+                    skeletons += `
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-icon"></div>
+                            <div style="flex:1; display:flex; flex-direction:column; width: 100%;">
+                                <div class="skeleton skeleton-badge"></div>
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-title" style="width: 60%;"></div>
+                                <div class="skeleton skeleton-meta" style="margin-top: 4px;"></div>
+                                <div class="skeleton skeleton-btn"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                fileGrid.innerHTML = skeletons;
+                resultCount.innerHTML = `<span class="skeleton" style="display:inline-block; width:120px; height:20px; border-radius:4px;"></span>`;
+                
                 const res = await fetch('../api/get_documents.php?' + params.toString());
                 const docs = await res.json();
 

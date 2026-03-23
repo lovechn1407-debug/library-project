@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://itscollege-library.vercel.app'
   
-  // Base routes
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -17,13 +16,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    // 1. Fetch unique courses and subjects
     const subjects = await prisma.subject.findMany({
       select: { name: true, course: true },
     })
 
     const courses = Array.from(new Set(subjects.map((s: { course: string }) => s.course)))
-    
     courses.forEach((course) => {
       routes.push({
         url: `${baseUrl}?course=${encodeURIComponent(course)}`,
@@ -33,24 +30,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     })
 
-    subjects.forEach((subject) => {
+    const uniqueSubjects = Array.from(new Set(subjects.map((s: { name: string }) => s.name)))
+    uniqueSubjects.forEach((subject) => {
       routes.push({
-        url: `${baseUrl}?course=${encodeURIComponent(subject.course)}&subject=${encodeURIComponent(subject.name)}`,
+        url: `${baseUrl}?subject=${encodeURIComponent(subject)}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.7,
       })
     })
     
-    // 2. Fetch all documents for direct PDF indexing
+    // Fetch all documents for indexing
     const documents = await prisma.document.findMany({
       select: { id: true, uploadedAt: true }
     })
     
     documents.forEach((doc) => {
+      // Intentionally omitting '&action=view' to prevent the XML parsing error in GSC
       routes.push({
-        url: `${baseUrl}/api/documents/download?id=${doc.id}&action=view`,
-        lastModified: doc.uploadedAt,
+        url: `${baseUrl}/api/documents/download?id=${doc.id}`,
+        lastModified: doc.uploadedAt || new Date(),
         changeFrequency: 'monthly',
         priority: 0.6,
       })

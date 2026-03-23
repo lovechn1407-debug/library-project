@@ -51,7 +51,7 @@ export async function GET() {
         courses.forEach((course: string) => {
             const safeCourse = course.replace(/&/g, 'and').replace(/[^a-zA-Z0-9.\- ]/g, '')
             urls.push({
-                loc: `${baseUrl}?course=${encodeURIComponent(safeCourse)}`,
+                loc: `${baseUrl}/?course=${encodeURIComponent(safeCourse)}`,
                 lastmod: new Date().toISOString(),
                 changefreq: 'weekly',
                 priority: '0.8'
@@ -62,7 +62,7 @@ export async function GET() {
         uniqueSubjects.forEach((subject: string) => {
             const safeSubject = subject.replace(/&/g, 'and').replace(/[^a-zA-Z0-9.\- ]/g, '')
             urls.push({
-                loc: `${baseUrl}?subject=${encodeURIComponent(safeSubject)}`,
+                loc: `${baseUrl}/?subject=${encodeURIComponent(safeSubject)}`,
                 lastmod: new Date().toISOString(),
                 changefreq: 'weekly',
                 priority: '0.7'

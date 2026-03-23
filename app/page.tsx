@@ -271,10 +271,17 @@ export default function Library() {
 
                         <div className={styles.fileGrid}>
                             {loading ? (
-                                <div className={styles.loaderContainer}>
-                                    <div className={styles.spinner}></div>
-                                    <p className={styles.loaderText}>Fetching Library Documents...</p>
-                                </div>
+                                Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className={`glass ${styles.skeletonCard}`}>
+                                        <div className={styles.skeletonIcon}></div>
+                                        <div className={styles.skeletonInfo}>
+                                            <div className={styles.skeletonTag}></div>
+                                            <div className={styles.skeletonTitle}></div>
+                                            <div className={styles.skeletonMeta}></div>
+                                            <div className={styles.skeletonActions}></div>
+                                        </div>
+                                    </div>
+                                ))
                             ) : filteredAndSortedDocs.length === 0 ? (
                                 <div className={styles.emptyState}>
                                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--surface-border)" strokeWidth="1" style={{ margin: '0 auto 16px', display: 'block' }}>

@@ -81,6 +81,17 @@ export default function Library() {
     const [filterYear, setFilterYear] = useState('All');
     const [filterSubject, setFilterSubject] = useState('All');
 
+    // Read URL parameters on mount safely
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const urlCourse = params.get('course');
+            const urlSubject = params.get('subject');
+            if (urlCourse) setFilterCourse(urlCourse);
+            if (urlSubject) setFilterSubject(urlSubject);
+        }
+    }, []);
+
     // Sort State
     const [sortOption, setSortOption] = useState('newest'); // 'newest', 'oldest', 'a-z'
 

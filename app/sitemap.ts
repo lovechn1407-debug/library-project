@@ -43,17 +43,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     })
     
-    // Fetch all documents for indexing
+    // Fetch all documents — include their detail pages (/documents/[id]) which are
+    // real HTML pages Google can crawl and index (NOT the binary download API endpoints)
     const documents = await prisma.document.findMany({
       select: { id: true, uploadedAt: true }
     })
-    
+
     documents.forEach((doc) => {
-      // Intentionally omitting '&action=view' to prevent ANY xml ampersand parsing errors
-      const dateStr = doc.uploadedAt ? new Date(doc.uploadedAt) : new Date();
       routes.push({
-        url: `${baseUrl}/api/documents/download?id=${doc.id}`,
-        lastModified: dateStr,
+        url: `${baseUrl}/documents/${doc.id}`,
+        lastModified: doc.uploadedAt ? new Date(doc.uploadedAt) : new Date(),
         changeFrequency: 'monthly',
         priority: 0.6,
       })

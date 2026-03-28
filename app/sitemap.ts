@@ -1,7 +1,12 @@
 import { MetadataRoute } from 'next'
 import { PrismaClient } from '@prisma/client'
 
+// Force dynamic rendering — prevents Vercel CDN caching a stale/broken sitemap
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const prisma = new PrismaClient()
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://itscollege-library.vercel.app'
